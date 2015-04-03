@@ -463,7 +463,7 @@ int editMnu(void)
                 erase();
                 if(!editG(0,1))
                 {
-                    goto EMNU1;
+                    return 0;
                 }
             }
             if((mouEV.x >= (tSpace.ws_col/2)-(strlen("1 - Make New Game"))+6) && (mouEV.x <= (tSpace.ws_col/2+5)) && (mouEV.y == (tSpace.ws_row/2)))
@@ -486,7 +486,7 @@ int editMnu(void)
         erase();
         if(!editG(0,1))
         {
-            goto EMNU1;
+            return 0;
         }
     }
     if(trap == '2')
@@ -534,7 +534,7 @@ int editMnu(void)
             erase();
             if(!editG(0,1))
             {
-                goto EMNU1;
+                return 0;
             }
         }
         if(mItem == 2)
@@ -670,11 +670,11 @@ int editG(int type, bool ynTitle)
     if(clean  | !scr_size())
         goto RFEWIN;
     if(ch = 27)
-        return 0;
+        goto ECLOS;
     if(!clean)
         goto CHECK;
 
-	eraseWindow(my_win);
+	ECLOS: eraseWindow(my_win);
 	erase();
     return 0;
 }
