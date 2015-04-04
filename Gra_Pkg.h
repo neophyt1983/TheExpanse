@@ -631,9 +631,11 @@ int editG()
     echo();
     nodelay(stdscr,FALSE);
     tb.wipe();
-    gTitle = tb.textbox(startx,starty,"Enter game file name:");
+    tb.textbox(startx,starty,"Enter game file name:");
     erase();
+    gTitle = tb.inPut;
     mvprintw(1,1,"%s",gTitle);
+    getch();
     nodelay(stdscr,TRUE);
     noecho();
 
