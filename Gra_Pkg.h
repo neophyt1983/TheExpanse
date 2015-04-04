@@ -26,7 +26,7 @@ int populateWorld();
 int setColors();
 WINDOW *makeWindow(int height, int width, int starty, int startx);
 void eraseWindow(WINDOW *local_win);
-int editG(int type, bool ynTitle);
+int editG();
 int colorBox[7][7];
 
 struct winsize tSpace;
@@ -89,7 +89,7 @@ int populateWorld()
     again: kb = getch();
 
     kb = toupper(kb);
-    if(kb == 'W' | kb == KEY_UP)
+    if((kb == 'W') | (kb == KEY_UP))
     {
         erase();
         scr_size();
@@ -99,7 +99,7 @@ int populateWorld()
         refresh();
         cpos = 1;
     }
-    if(kb == 'S' | kb == KEY_DOWN)
+    if((kb == 'S') | (kb == KEY_DOWN))
     {
         erase();
         scr_size();
@@ -109,7 +109,7 @@ int populateWorld()
         refresh();
         cpos = 0;
     }
-    if(kb == 'D' | kb ==  KEY_RIGHT)
+    if((kb == 'D') | (kb ==  KEY_RIGHT))
     {
         erase();
         scr_size();
@@ -119,7 +119,7 @@ int populateWorld()
         refresh();
         cpos = 3;
     }
-    if(kb == 'A' | kb == KEY_LEFT)
+    if((kb == 'A') | (kb == KEY_LEFT))
     {
         erase();
         scr_size();
@@ -167,7 +167,7 @@ int mainMnu()
 
     if(getmouse(&mouEV) == OK)
     {
-        if(mouEV.bstate & BUTTON1_PRESSED | trap == KEY_MOUSE)
+        if((mouEV.bstate & BUTTON1_PRESSED) | (trap == KEY_MOUSE))
         {
             if((mouEV.x >= (tSpace.ws_col/2)-(strlen("1: Play Game"))+6) && (mouEV.x <= (tSpace.ws_col/2+5)) && (mouEV.y == (tSpace.ws_row/2)-2))
             {
@@ -219,6 +219,7 @@ int mainMnu()
         return 0;
     }
     if(toupper(trap) == 'W' | trap == KEY_UP)
+    {
         if(mItem == 1)
         {
             mItem = 3;
@@ -231,6 +232,7 @@ int mainMnu()
             scr_size();
             goto MMNU1;
         }
+    }
     if(toupper(trap) == 'S' | trap == KEY_DOWN)
         if(mItem == 3)
         {
@@ -461,9 +463,9 @@ int editMnu(void)
             {
                 mItem = 1;
                 erase();
-                if(!editG(0,1))
+                if(!editG())
                 {
-                    return 0;
+                    goto EMNU1;
                 }
             }
             if((mouEV.x >= (tSpace.ws_col/2)-(strlen("1 - Make New Game"))+6) && (mouEV.x <= (tSpace.ws_col/2+5)) && (mouEV.y == (tSpace.ws_row/2)))
@@ -484,9 +486,9 @@ int editMnu(void)
     if(trap == '1')
     {
         erase();
-        if(!editG(0,1))
+        if(!editG())
         {
-            return 0;
+            goto EMNU1;
         }
     }
     if(trap == '2')
@@ -532,9 +534,9 @@ int editMnu(void)
         if(mItem == 1)
         {
             erase();
-            if(!editG(0,1))
+            if(!editG())
             {
-                return 0;
+                goto EMNU1;
             }
         }
         if(mItem == 2)
@@ -553,12 +555,10 @@ int editMnu(void)
 
     else
     {
-        trap = 0;
-        if(scr_size())
-            goto EMNU1;
-        else
-            goto EMNU2;
+        scr_size();
+        goto EMNU1;
     }
+
     return 0;
 }
 
@@ -606,7 +606,6 @@ int scr_size(void)
     ioctl(STDOUT_FILENO, TIOCGWINSZ, &tSpace);
     if((tSpace.ws_col != testSpa.ws_col) | (tSpace.ws_row != testSpa.ws_row))
     {
-        erase();
         testSpa = tSpace;
         return 1;
     }
@@ -623,93 +622,21 @@ int listFiles(short type)
     return 0;
 }
 
-int editG(int type, bool ynTitle)
+int editG()
 {
-    char gTitle[20];
-    WINDOW *my_win;
-    WINDOW *text_box;
-	int startx, starty, width, height;
-	int tbstartx,tbstarty,tbwidth,tbheight;
-	int ch;
-	bool clean = 0;
+    boarder tb;
+    const char* gTitle;
+    short startx = 3;
+    short starty = 5;
+    echo();
+    nodelay(stdscr,FALSE);
+    tb.wipe();
+    gTitle = tb.textbox(startx,starty,"Enter game file name:");
+    erase();
+    mvprintw(1,1,"%s",gTitle);
+    nodelay(stdscr,TRUE);
+    noecho();
 
-	cbreak();			/* Line buffering disabled, Pass on
-					 * every thing to me 		*/
-	height = tSpace.ws_row - 2;
-	width = tSpace.ws_col - 2;
-	starty = (tSpace.ws_row - height) / 2;	/* Calculating for a center placement */
-	startx = (tSpace.ws_col - width) / 2;	/* of the window		*/
-	erase();
-	my_win = makeWindow(height, width, 1, 1);
-
-      RFEWIN: height = tSpace.ws_row - 2;
-            width = tSpace.ws_col - 2;
-            starty = (tSpace.ws_row - height) / 2;	/* Calculating for a center placement */
-            startx = (tSpace.ws_col - width) / 2;	/* of the window		*/
-            eraseWindow(my_win);
-            my_win = makeWindow(height, width, 1,1);
-            if(!ynTitle)
-                mvwprintw(my_win,starty,width/2,"%s",gTitle);
-            wrefresh(my_win);
-            clean = 0;
-
-        if(ynTitle)
-        {
-            echo();
-            nodelay(stdscr,FALSE);
-            mvwprintw(my_win,starty+1,startx+1,"Save name [20 character limit]: ");
-            mvwgetstr(my_win,starty+2,startx+1,gTitle);
-            ynTitle = 0;
-            erase();
-            noecho();
-            nodelay(stdscr,TRUE);
-            clean = 1;
-            ynTitle = 0;
-        }
-    CHECK: ch = getch();
-    if(clean  | !scr_size())
-        goto RFEWIN;
-    if(ch = 27)
-        goto ECLOS;
-    if(!clean)
-        goto CHECK;
-
-	ECLOS: eraseWindow(my_win);
-	erase();
     return 0;
 }
 
-WINDOW *makeWindow(int height, int width, int starty, int startx)
-{
-WINDOW *local_win;
-
-	local_win = newwin(height, width, starty, startx);
-	box(local_win, 0 , 0);		/* 0, 0 gives default characters
-					 * for the vertical and horizontal
-					 * lines			*/
-	wrefresh(local_win);		/* Show that box 		*/
-
-	return local_win;
-}
-
-void eraseWindow(WINDOW *local_win)
-{
-    /* box(local_win, ' ', ' '); : This won't produce the desired
-	 * result of erasing the window. It will leave it's four corners
-	 * and so an ugly remnant of window.
-	 */
-	wborder(local_win, ' ', ' ', ' ',' ',' ',' ',' ',' ');
-	/* The parameters taken are
-	 * 1. win: the window on which to operate
-	 * 2. ls: character to be used for the left side of the window
-	 * 3. rs: character to be used for the right side of the window
-	 * 4. ts: character to be used for the top side of the window
-	 * 5. bs: character to be used for the bottom side of the window
-	 * 6. tl: character to be used for the top left corner of the window
-	 * 7. tr: character to be used for the top right corner of the window
-	 * 8. bl: character to be used for the bottom left corner of the window
-	 * 9. br: character to be used for the bottom right corner of the window
-	 */
-	wrefresh(local_win);
-	delwin(local_win);
-}
