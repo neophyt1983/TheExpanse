@@ -250,6 +250,7 @@ class timer {
 
 class boarder{
     public:
+    const char* inPut;
     char uBox[80][24];
 
     void wipe()
@@ -290,11 +291,11 @@ class boarder{
         return;
     }
 
-    const char* textbox(short startx, short starty,const char* text)
+    void textbox(short startx, short starty,const char* text)   // There will be a limit to the text message here.
     {
         int x = 0;
         int y = 0;
-        const char* inPut;
+        char inPut[32];
 
         while(x<=20)
         {
@@ -323,9 +324,9 @@ class boarder{
         }
 
         mvprintw(starty-1,startx,"%s",text);
-        mvscanw(starty+1,startx+1,"%s",inPut);
+        mvgetnstr(starty+1,startx+1,inPut,100);
 
-        return inPut;
+        return;
     }
 
 
