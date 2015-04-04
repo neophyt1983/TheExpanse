@@ -240,10 +240,94 @@ class timer {
 		}
 
 		long double elapsedTime() {
-			return ((long double) clock() - begTime) / CLOCKS_PER_SEC;
+			return (((long double) clock() - begTime) / sysconf(_SC_CLK_TCK))/10000;
 		}
 
 		bool isTimeout(long double seconds) {
 			return seconds >= elapsedTime();
 		}
+};
+
+class boarder{
+    public:
+    char uBox[80][24];
+
+    void wipe()
+    {
+        int x = 0;
+        int y = 0;
+
+        while(y <= 24)
+        {
+            while(x <= 80)
+            {
+                uBox[x][y] = ' ';
+                x++;
+            }
+            x=0;
+            y++;
+        }
+        x = 0;
+        y = 0;
+        return;
+    }
+
+    void draw()
+    {
+        short x = 0;
+        short y = 0;
+        while(x<80)
+        {
+            while(y<24)
+            {
+                mvaddch(y,x,uBox[x][y]);
+                y++;
+            }
+            y=0;
+            x++;
+        }
+
+        return;
+    }
+
+    const char* textbox(short startx, short starty,const char* text)
+    {
+        int x = 0;
+        int y = 0;
+        const char* inPut;
+
+        while(x<=20)
+        {
+            while(y<=2)
+            {
+                if((y == 0) | (y == 2))
+                    uBox[startx+x][starty+y] = '-';
+                if(((x == 0) | (x == 20)) & (y == 1))
+                    uBox[startx+x][starty+y] = '|';
+                y++;
+            }
+            y=0;
+            x++;
+        }
+        x=0;
+        y=0;
+                while(x<80)
+        {
+            while(y<24)
+            {
+                mvaddch(y,x,uBox[x][y]);
+                y++;
+            }
+            y=0;
+            x++;
+        }
+
+        mvprintw(starty-1,startx,"%s",text);
+        mvscanw(starty+1,startx+1,"%s",inPut);
+
+        return inPut;
+    }
+
+
+
 };
